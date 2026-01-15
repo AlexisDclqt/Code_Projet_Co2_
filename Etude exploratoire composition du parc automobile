@@ -1,0 +1,269 @@
+# Composition du parc automobile
+# Visualisations par etiquette Co2
+
+# Visualiser le nombre d'occurences par etiquette Co2
+
+# Respect de l'ordre des étiquettes
+etiquette_order = ["A", "B", "C", "D", "E", "F", "G"]
+
+# Respect des couleurs officielles
+etiquette_colors = {
+    "A": "#1a9641",  # vert foncé
+    "B": "#a6d96a",  # vert clair
+    "C": "#ffff00",  # jaune
+    "D": "#fdae61",  # orange
+    "E": "#f46d43",  # rouge clair
+    "F": "#d73027",  # rouge
+    "G": "#7f0000"   # bordeaux
+}
+
+# Comptage des occurrences
+counts = (
+    df["Etiquette_CO2"]
+    .value_counts()
+    .reindex(etiquette_order)
+)
+
+# Création du graphique
+plt.figure(figsize=(10, 5))
+bars = plt.bar(
+    counts.index,
+    counts.values,
+    color=[etiquette_colors[e] for e in counts.index],
+    edgecolor="black"
+)
+
+# Ajout des valeurs sur les barres
+for bar in bars:
+    height = bar.get_height()
+    if height > 0:
+        plt.text(
+            bar.get_x() + bar.get_width() / 2,
+            height,
+            f"{int(height)}",
+            ha="center",
+            va="bottom",
+            fontsize=10
+        )
+
+# Mise en forme
+plt.title("Graph. 1 : Nombre de véhicules par étiquette CO₂", fontsize=14)
+plt.xlabel("Étiquette CO₂")
+plt.ylabel("Nombre de véhicules")
+plt.grid(axis="y", linestyle="--", alpha=0.4)
+
+plt.tight_layout()
+plt.show()
+
+# Visualisation du poids moyen par etiquette Co2
+
+# Ordre officiel des étiquettes
+etiquette_order = ["A", "B", "C", "D", "E", "F", "G"]
+
+# Couleurs officielles (UE)
+etiquette_colors = {
+    "A": "#1a9641",  # vert foncé
+    "B": "#a6d96a",  # vert clair
+    "C": "#ffff00",  # jaune
+    "D": "#fdae61",  # orange
+    "E": "#f46d43",  # rouge clair
+    "F": "#d73027",  # rouge
+    "G": "#7f0000"   # bordeaux
+}
+
+# Calcul du poids moyen par étiquette
+mean_weight = (
+    df.groupby("Etiquette_CO2")["WLTP_poids"]
+      .mean()
+      .reindex(etiquette_order)
+)
+
+# Création du graphique
+plt.figure(figsize=(10, 5))
+bars = plt.bar(
+    mean_weight.index,
+    mean_weight.values,
+    color=[etiquette_colors[e] for e in mean_weight.index],
+    edgecolor="black"
+)
+
+# Ajout des valeurs sur les barres
+for bar in bars:
+    height = bar.get_height()
+    if not pd.isna(height):
+        plt.text(
+            bar.get_x() + bar.get_width() / 2,
+            height,
+            f"{height:.0f} kg",
+            ha="center",
+            va="bottom",
+            fontsize=10
+        )
+
+# Mise en forme
+plt.title("Graph. 2 : Poids moyen des véhicules par étiquette CO₂", fontsize=14)
+plt.xlabel("Étiquette CO₂")
+plt.ylabel("Poids moyen (kg)")
+plt.grid(axis="y", linestyle="--", alpha=0.4)
+
+plt.tight_layout()
+plt.show()
+
+# Distribution des étiquettes Co2 par quartiles de poids
+
+# Création d'un tableau croisé
+table = pd.crosstab(df['Etiquette_CO2'], df['Poids_Quartile'])
+
+# Normaliser pour obtenir des pourcentages par étiquette CO2
+table_percent = table.div(table.sum(axis=1), axis=0) * 100
+
+# Graphique à barres empilées en pourcentage
+table_percent.plot(kind='bar', stacked=True, figsize=(8,4), colormap='tab20')
+
+plt.title('Graph. 3 : Répartition des quartiles de poids selon les étiquettes CO2 (en %)')
+plt.xlabel('Etiquette CO2')
+plt.ylabel('Pourcentage (%)')
+plt.legend(title='Quartile de Poids', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.tight_layout()
+plt.show()
+
+# Distribution des étiquettes Co2 par types de carburant
+
+# Création d'un tableau croisé en %
+table = pd.crosstab(df['Etiquette_CO2'], df['Type_Carburant'])
+table_percent = table.div(table.sum(axis=1), axis=0) * 100
+
+# Graphique à barres empilées en pourcentage
+table_percent.plot(kind='bar', stacked=True, figsize=(8,4), colormap='tab20')
+
+plt.title('Graph. 4 : Répartition des types de carburant selon les étiquettes CO2 (en %)')
+plt.xlabel('Etiquette CO2')
+plt.ylabel('Pourcentage (%)')
+plt.legend(title='Type de Carburant', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.tight_layout()
+plt.show()
+
+# Visualisations par quartile de poids
+# Visualisation de la distribution des types de carburant par quartiles de poids
+
+# Création d'un tableau croisé
+table = pd.crosstab(df['Poids_Quartile'], df['Type_Carburant'])
+table_percent = table.div(table.sum(axis=1), axis=0) * 100
+
+
+# Graphique à barres empilées en pourcentage
+table_percent.plot(kind='bar', stacked=True, figsize=(8,4), colormap='tab20')
+
+plt.title('Graph. 1 : Répartition des types de carburant selon les quartiles de poids (en %)')
+plt.xlabel('Quartile de Poids')
+plt.ylabel('Pourcentage (%)')
+plt.legend(title='Type de Carburant', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.tight_layout()
+plt.show()
+
+# Visualisation de la distribution des quartiles de poids pour les véhicules électriques
+
+# Calcul du pourcentage par quartile
+quartile_counts = df_ev['Poids_Quartile'].value_counts().sort_index()
+quartile_pct = (quartile_counts / quartile_counts.sum()) * 100
+
+# Création du graphique
+plt.figure(figsize=(8, 4))
+sns.barplot(
+    x=quartile_pct.index,
+    y=quartile_pct.values,
+    palette=['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3']
+)
+
+# Ajout des pourcentages au-dessus de chaque barre
+for i, pct in enumerate(quartile_pct.values):
+    plt.text(i, pct + 1, f"{pct:.1f}%", ha='center', fontsize=11)
+
+plt.title("Graph. 2 : Répartition des véhicules électriques par quartile de poids", fontsize=14)
+plt.xlabel("Quartile de poids")
+plt.ylabel("Pourcentage (%)")
+plt.ylim(0, quartile_pct.values.max() + 10)
+plt.grid(axis='y', linestyle='--', alpha=0.4)
+
+plt.show()
+
+# Visualisations par quartiles de puissance
+
+# Répartition des quartiles de puissance selon les quartiles de poids
+
+# Création d'un tableau croisé (en %)
+table = pd.crosstab(df['Poids_Quartile'], df['PuissanceKW_Quartile'])
+table_percent = table.div(table.sum(axis=1), axis=0) * 100
+
+# Graphique à barres empilées en pourcentage
+table_percent.plot(kind='bar', stacked=True, figsize=(8,4), colormap='tab20')
+
+plt.title('Graph. 1 : Répartition des quartiles de puissance selon les quartiles de poids (en %)')
+plt.xlabel('Quartile de Poids')
+plt.ylabel('Pourcentage (%)')
+plt.legend(title='Quartile de Puissance', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.tight_layout()
+plt.show()
+
+# Répartition des types de carburant selon les quartiles de puissance
+
+# Création d'un tableau croisé (en %)
+table = pd.crosstab(df['PuissanceKW_Quartile'], df['Type_Carburant'])
+table_percent = table.div(table.sum(axis=1), axis=0) * 100
+
+# Graphique à barres empilées en pourcentage
+table_percent.plot(kind='bar', stacked=True, figsize=(8,4), colormap='tab20')
+
+plt.title('Répartition des types de carburant selon les quartiles de puissance (en %)')
+plt.xlabel('Quartile de Puissance (kW)')
+plt.ylabel('Pourcentage (%)')
+plt.legend(title='Type de Carburant', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.tight_layout()
+plt.show()
+
+# Graphique à bulles pour representer les types de carburants en fonction de leur poids moyen et puissance moyenne
+
+# Regroupement par type de carburant
+df_grouped = df.groupby('Type_Carburant').agg(
+    poids_moy=('WLTP_poids', 'mean'),
+    puissance_moy=('Puissance_KW', 'mean')
+).reset_index()
+
+# Couleurs pour les carburants
+carburant_colors = {
+    'Essence': '#1f77b4',
+    'Electric': '#d62728',
+    'Diesel': '#ff7f0e',
+    'Hybride Essence': '#2ca02c',
+    'Hybride Diesel': '#9467bd',
+    'Autre': '#8c564b'
+}
+
+# Création du graphique
+plt.figure(figsize=(8, 5))
+plt.scatter(
+    df_grouped['poids_moy'],
+    df_grouped['puissance_moy'],
+    s = 3000,
+    c=[carburant_colors[c] for c in df_grouped['Type_Carburant']],
+    alpha=0.7,
+    edgecolors='w'
+)
+
+# Ajouter labels sur chaque bulle
+for i, row in df_grouped.iterrows():
+    plt.text(
+        row['poids_moy'],
+        row['puissance_moy'],
+        row['Type_Carburant'],
+        ha='center',
+        va='center',
+        fontsize=7,
+        color='white',
+        weight='bold'
+    )
+plt.xlabel("Poids moyen (kg)")
+plt.ylabel("Puissance moyenne (kW)")
+plt.title("Poids vs Puissance moyen par type de carburant")
+plt.grid(True, linestyle='--', alpha=0.4)
+plt.show()
