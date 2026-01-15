@@ -1,3 +1,12 @@
+# Import du dataset nettoyé
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+df = pd.read_csv('/content/drive/MyDrive/Data_Co2_Clean_AVEC_OUTLIERS_BEFORE_SAMPLE.csv')
+
 # Etude des véhicules électriques
 # Création d'un dataframe pour les véhicules électriques
 
