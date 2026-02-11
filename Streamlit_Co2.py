@@ -16,6 +16,7 @@ from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegresso
 from sklearn.model_selection import learning_curve
 from scipy.stats import randint
 import time
+import pyarrow
 
 st.set_page_config(layout="wide")
 @st.cache_data(persist=True)
@@ -26,6 +27,7 @@ def load_data():
     return data
 
 data = load_data()
+
 
 data_metrics = data[["Pays", "Co2_Emission(WLTP)", "WLTP_poids", "Type_Carburant", "Puissance_KW"]]
 
@@ -204,7 +206,7 @@ with tab1:
 
     with col_map2:
         
-        st.subheader(f"CO₂ moyen par pays : {"Tous" if select_pays is None else select_pays}")
+        st.subheader(f"CO₂ moyen par pays : {'Tous' if select_pays is None else select_pays}")
 
         avg_co2_pays = (
         data.groupby("Pays")["Co2_Emission(WLTP)"]
@@ -266,7 +268,7 @@ with tab2:
 
     brand = brands["Constructeur"].unique()
 
-    pills_options = ("Afficher le graph")
+    pills_options = ("Afficher le graph",)
 
     selected_pills = st.pills(label="Navigation", options=pills_options, selection_mode="single", label_visibility="collapsed")
 
@@ -305,7 +307,7 @@ with tab2:
 
         
         if select_brand:
-            st.subheader(f"CO₂ moyen par pays, pour la marque : {"A selectionner" if select_brand is None else select_brand}")
+            st.subheader(f"CO₂ moyen par pays, pour la marque : {'A selectionner' if select_brand is None else select_brand}")
 
             brands = brands[brands["Constructeur"].str.contains(select_brand, na = False, case = False)]
 
@@ -1230,4 +1232,3 @@ L’étude des **coefficients du modèle** montre que les émissions de CO₂ so
 Ainsi, le modèle fournit des **prédictions fiables et cohérentes** des émissions de CO₂ à partir des caractéristiques des véhicules.
 
 """)
-
