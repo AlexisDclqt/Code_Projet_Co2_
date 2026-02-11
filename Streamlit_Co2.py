@@ -20,7 +20,7 @@ import time
 @st.cache_data(persist=True)
 
 def load_data():
-    data = pd.read_parquet(r"C:\Users\alexd\Desktop\WorkSpace\NoteBook_Jupyter\Projet_DA_DST_Co2\Data_Clean\Co2_sample_v3_ST.parquet")
+    data = pd.read_parquet(Co2_sample_v3_ST.parquet")
 
     return data
 
@@ -1221,5 +1221,6 @@ L’analyse des **learning curves** confirme l’absence de sur-apprentissage : 
 L’étude des **coefficients du modèle** montre que les émissions de CO₂ sont expliquées à la fois par des variables techniques directes (consommation, masse, puissance) et par des variables induites, telles que le constructeur, qui capturent des effets technologiques ou structurels non explicitement mesurés.
 
 Ainsi, le modèle fournit des **prédictions fiables et cohérentes** des émissions de CO₂ à partir des caractéristiques des véhicules.
+
 
 """)
