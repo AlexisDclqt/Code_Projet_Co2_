@@ -30,9 +30,6 @@ data = load_data()
 st.set_page_config(layout="wide")
 
 
-
-################################################# METRICS ############################################################
-
 data_metrics = data[["Pays", "Co2_Emission(WLTP)", "WLTP_poids", "Type_Carburant", "Puissance_KW"]]
 
 data_electric_metrics = data_metrics[data_metrics["Type_Carburant"] == "Electric"]
@@ -206,7 +203,7 @@ with tab1:
                         xanchor="center")
                         )
         pie2.update_traces(textinfo='percent+label',textfont_size=12)
-        st.plotly_chart(pie2, use_container_width=True, key = "pie2")
+        st.plotly_chart(pie2, width="stretch", key = "pie2")
 
     with col_map2:
         
@@ -250,7 +247,7 @@ with tab1:
         margin=dict(l=0, r=0, t=0, b=0),
     )
 
-        st.plotly_chart(fig_choro, use_container_width=True, key = "map2")
+        st.plotly_chart(fig_choro, width="stretch", key = "map2")
 
 with tab2:
 
@@ -488,7 +485,7 @@ with tab2:
                                                                      max_value = int(nb_car_by_country["Nombre d'enregistrement"].max())
                                                                      )},
                                                                      hide_index = True,
-                                                                     use_container_width = True,
+                                                                     width="stretch",
                                                                      height = 248)
             else:
                 st.data_editor(
@@ -500,7 +497,7 @@ with tab2:
                                                                      max_value = int(nb_car_by_country["Nombre d'enregistrement"].max())
                                                                      )},
                                                                      hide_index = True,
-                                                                     use_container_width = True,
+                                                                     width="stretch",
                                                                      height = 388)
 
 if "results_df" not in st.session_state:
@@ -921,7 +918,7 @@ Les coefficients sont estimés de manière à minimiser la somme des carrés des
             st.info("Veuillez lancer le code pour obtenir les résultats finaux.")
         else:
             results_df = st.session_state.results_df
-            st.dataframe(results_df, hide_index=True, use_container_width=True)
+            st.dataframe(results_df, hide_index=True, width="stretch")
 
             r2_test  = results_df.loc[results_df.Metric=="R2",  "Test"].values[0]
             r2_train = results_df.loc[results_df.Metric=="R2",  "Train"].values[0]
@@ -1223,6 +1220,6 @@ L’étude des **coefficients du modèle** montre que les émissions de CO₂ so
 
 Ainsi, le modèle fournit des **prédictions fiables et cohérentes** des émissions de CO₂ à partir des caractéristiques des véhicules.
 
-
 """)
+
 
