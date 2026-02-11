@@ -19,8 +19,9 @@ import time
 
 @st.cache_data(persist=True)
 
+
 def load_data():
-    data = pd.read_parquet(Co2_sample_v3_ST.parquet")
+    data = pd.read_parquet("Co2_sample_v3_ST.parquet")
 
     return data
 
@@ -1224,3 +1225,4 @@ Ainsi, le modèle fournit des **prédictions fiables et cohérentes** des émiss
 
 
 """)
+
