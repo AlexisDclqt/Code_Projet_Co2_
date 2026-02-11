@@ -19,7 +19,6 @@ import time
 
 @st.cache_data(persist=True)
 
-
 def load_data():
     data = pd.read_parquet("Co2_sample_v3_ST.parquet")
 
@@ -28,6 +27,7 @@ def load_data():
 data = load_data()
 
 st.set_page_config(layout="wide")
+
 
 
 data_metrics = data[["Pays", "Co2_Emission(WLTP)", "WLTP_poids", "Type_Carburant", "Puissance_KW"]]
@@ -275,10 +275,19 @@ with tab2:
 
     if selected_pills is None:
         selected_pills = pills_options[0]
-    else:
-        select_brand = st.selectbox("Choisir un Constructeur :", options = brand, index = None, key = "grpah1")
-   
-        if select_brand == None:
+
+
+    if selected_pills == "Afficher le graph":
+
+        select_brand = st.selectbox(
+        "Choisir un Constructeur :",
+        options=brand,
+        index=None,
+        key="graph1"
+    )
+
+        if select_brand is None:
+                    
             fig_brand1 = go.Figure()
 
             avg_global1 = avg_global.copy()
@@ -293,7 +302,7 @@ with tab2:
             title = dict(
             text = f"Moyenne des emissions des Vehicules thermique en Europe",
             font = dict(size = 12)
-        ))
+            ))
         
             st.plotly_chart(fig_brand1)
 
@@ -1224,5 +1233,3 @@ L’étude des **coefficients du modèle** montre que les émissions de CO₂ so
 Ainsi, le modèle fournit des **prédictions fiables et cohérentes** des émissions de CO₂ à partir des caractéristiques des véhicules.
 
 """)
-
-
