@@ -271,7 +271,10 @@ with tab2:
 
     pills_options = ("Afficher le graph")
 
-    if st.pills(label = None, options = pills_options, selection_mode = "single"):     
+         
+    selected_pills = st.pills(label="Navigation", options=pills_options, selection_mode="single", label_visibility="collapsed")
+
+    if selected_pills:
 
         select_brand = st.selectbox("Choisir un Constructeur :", options = brand, index = None, key = "grpah1")
    
