@@ -559,14 +559,18 @@ with tab4:
         ]
     )
         
-    model_LR = Pipeline(
+    @st.cache_resource(show_spinner=False)
+    def train_model(X, y):
+        model = Pipeline(
                 steps = [
             ("preprocessors", preprocessors),
             ("linreg", LinearRegression())
         ]
     )
+        model.fit(X, y)
+        return model
 
-    model_LR.fit(data_ML, target)
+    model_LR = train_model(data_ML, target)
 
     feature_names = model_LR.named_steps["preprocessors"].get_feature_names_out()
     coefs = model_LR.named_steps["linreg"].coef_
@@ -759,7 +763,6 @@ Les coefficients sont estimés de manière à minimiser la somme des carrés des
             cv=cv,
             scoring="r2",
             return_train_score=True,
-            n_jobs=-1
         )
             
             test_mean_r2 = r2_scores["test_score"].mean()
@@ -800,8 +803,8 @@ Les coefficients sont estimés de manière à minimiser la somme des carrés des
                         y,
                         cv=cv,
                         scoring="r2",
-                        return_train_score=True,
-                        n_jobs=-1
+                        return_train_score=True
+                        
                         )
 
                         return r2_scores["train_score"].mean(), r2_scores["test_score"].mean()
@@ -833,8 +836,8 @@ Les coefficients sont estimés de manière à minimiser la somme des carrés des
             y,
             cv=cv,
             scoring = "neg_mean_squared_error",
-            return_train_score = True,
-            n_jobs=-1
+            return_train_score = True
+            
         )
 
         test_mean_mse = -mse_scores["test_score"].mean()
@@ -877,7 +880,8 @@ Les coefficients sont estimés de manière à minimiser la somme des carrés des
                         cv=cv,
                         scoring="neg_mean_squared_error",
                         return_train_score=True,
-                        n_jobs=-1
+                        n_jobs = 1
+                        
                         )
 
                         return -mse_scores["train_score"].mean(), -mse_scores["test_score"].mean()
@@ -905,7 +909,8 @@ Les coefficients sont estimés de manière à minimiser la somme des carrés des
                 cv=cv,
                 scoring={"r2": "r2", "mse": "neg_mean_squared_error"},
                 return_train_score=True,
-                n_jobs=-1
+                n_jobs = 1
+                
             )
                 return pd.DataFrame({
                 "Metric": ["R2", "MSE"],
@@ -958,45 +963,43 @@ la précision des prédictions reste stable lorsque le modèle est appliqué à 
 
     with st.expander(" 7 - Visualisation - Learning Curve"):
 
-        # pills_LC = ("Calculer & Afficher la Learning Curve")
+        @st.cache_data(show_spinner=False, ttl=3600)
 
-        lc_display, lc_inter = st.columns([7,3], gap = "small")
+        def compute_learning_curve(_X, _y, cv_splits=5):
+            kf_local = KFold(n_splits=cv_splits, shuffle=True, random_state=42)
 
-        with lc_display:
+            train_sizes, train_scores, test_scores = learning_curve(
+            estimator=model_LR,
+            X=_X,
+            y=_y,
+            cv=kf_local,
+            scoring="r2",
+            train_sizes=np.linspace(0.1, 1.0, 10),
+            n_jobs=1,   
+        )
+            return train_sizes, train_scores, test_scores
 
-            with st.container(border = True, height = 600, width = 800):
-                    
-                           
-                train_sizes, train_scores, test_scores = learning_curve(
-                         estimator=model_LR,
-                         X=data_ML,
-                         y=target,
-                         cv=kf,
-                         scoring="r2",
-                         train_sizes=np.linspace(0.1, 1.0, 10),
-                         n_jobs=-1
-                         )
-                        
-                train_mean = train_scores.mean(axis=1)
-                test_mean = test_scores.mean(axis=1)
+        train_sizes, train_scores, test_scores = compute_learning_curve(data_ML, target, cv_splits=5)
 
-                lc = plt.figure(figsize=(8,5))
-                     
-                plt.plot(train_sizes, train_mean, label="Train R²")
-                plt.plot(train_sizes, test_mean, label="Validation R²")
+        train_mean = train_scores.mean(axis=1)
+        test_mean = test_scores.mean(axis=1)
 
-                plt.xlabel("Taille du jeu d'entraînement")
-                plt.ylabel("R²")
-                plt.title("Learning Curve")
-                plt.legend()
-                plt.grid(True)
-                st.pyplot(lc)
+        lc_display, lc_inter = st.columns([7, 3], gap="small")
 
-            
-                    # else:
-                    #     lc_screen = r"C:\Users\alexd\Desktop\WorkSpace\NoteBook_Jupyter\Projet_DA_DST_Co2\lcStreamlit.png"
+    with lc_display:
+        with st.container(border=True, height=600, width=800):
 
-                    #     st.image(lc_screen)
+            fig, ax = plt.subplots(figsize=(8, 5))
+            ax.plot(train_sizes, train_mean, label="Train R²")
+            ax.plot(train_sizes, test_mean, label="Validation R²")
+            ax.set_xlabel("Taille du jeu d'entraînement")
+            ax.set_ylabel("R²")
+            ax.set_title("Learning Curve")
+            ax.legend()
+            ax.grid(True)
+
+            st.pyplot(fig)
+
 
             with lc_inter:
 
@@ -1226,4 +1229,3 @@ L’étude des **coefficients du modèle** montre que les émissions de CO₂ so
 Ainsi, le modèle fournit des **prédictions fiables et cohérentes** des émissions de CO₂ à partir des caractéristiques des véhicules.
 
 """)
-
