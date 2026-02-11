@@ -22,7 +22,7 @@ st.set_page_config(layout="wide")
 @st.cache_data(persist=True)
 
 def load_data():
-    data = pd.read_parquet(r"C:\Users\alexd\Desktop\WorkSpace\NoteBook_Jupyter\Projet_DA_DST_Co2\Data_Clean\Co2_sample_v3_ST.parquet")
+    data = pd.read_parquet("Co2_sample_v3_ST.parquet")
 
     return data
 
@@ -1226,3 +1226,4 @@ L’étude des **coefficients du modèle** montre que les émissions de CO₂ so
 Ainsi, le modèle fournit des **prédictions fiables et cohérentes** des émissions de CO₂ à partir des caractéristiques des véhicules.
 
 """)
+
