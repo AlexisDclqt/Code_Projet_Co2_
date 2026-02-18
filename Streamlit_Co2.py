@@ -22,7 +22,7 @@ st.set_page_config(layout="wide")
 @st.cache_data(persist=True)
 
 def load_data():
-    data = pd.read_parquet("Co2_sample_v3_ST.parquet")
+    data = pd.read_parquet(r"Co2_sample_v3_ST.parquet")
 
     return data
 
@@ -960,51 +960,60 @@ La MSE quantifie l’écart moyen entre les valeurs prédites par le modèle et 
 Les valeurs de MSE sont très similaires entre l’échantillon d’entraînement et l’échantillon de validation, ce qui indique que
 la précision des prédictions reste stable lorsque le modèle est appliqué à des données non vues.
 """)
-
+        
     with st.expander(" 7 - Visualisation - Learning Curve"):
+        if "lc_computed" not in st.session_state:
+            st.session_state.lc_computed = False
 
-        @st.cache_data(show_spinner=False, ttl=3600)
+        def compute_learning_curve(model, X, y):
+            kf_lc = KFold(shuffle=True, n_splits=3, random_state=42)
+            return learning_curve(
+                estimator=model,
+                X=X,
+                y=y,
+                cv=kf_lc,
+                scoring="r2",
+                n_jobs=-1,
+                train_sizes=np.linspace(0.2, 1.0, 5)  
+            )
 
-        def compute_learning_curve(_X, _y, cv_splits=5):
-            kf_local = KFold(n_splits=cv_splits, shuffle=True, random_state=42)
+        if st.button("Calculer & Tracer la Learning Curve", key="lc"):
+            start = time.time()
 
-            train_sizes, train_scores, test_scores = learning_curve(
-            estimator=model_LR,
-            X=_X,
-            y=_y,
-            cv=kf_local,
-            scoring="r2",
-            train_sizes=np.linspace(0.1, 1.0, 10),
-            n_jobs=1,   
-        )
-            return train_sizes, train_scores, test_scores
+            train_sizes, train_scores, test_scores = compute_learning_curve(model_LR, data_ML, target)
 
-        train_sizes, train_scores, test_scores = compute_learning_curve(data_ML, target, cv_splits=5)
+            st.session_state.train_sizes = train_sizes
+            st.session_state.train_mean = train_scores.mean(axis=1)
+            st.session_state.test_mean = test_scores.mean(axis=1)
+            st.session_state.lc_computed = True
 
-        train_mean = train_scores.mean(axis=1)
-        test_mean = test_scores.mean(axis=1)
+            elapsed2 = time.time() - start
+            st.session_state.lc_elapsed = elapsed2
 
-        lc_display, lc_inter = st.columns([7, 3], gap="small")
+    
+        if st.session_state.lc_computed:
 
-    with lc_display:
-        with st.container(border=True, height=600, width=800):
+            lc_display, lc_inter = st.columns([7, 3], gap="small")
 
-            fig, ax = plt.subplots(figsize=(8, 5))
-            ax.plot(train_sizes, train_mean, label="Train R²")
-            ax.plot(train_sizes, test_mean, label="Validation R²")
-            ax.set_xlabel("Taille du jeu d'entraînement")
-            ax.set_ylabel("R²")
-            ax.set_title("Learning Curve")
-            ax.legend()
-            ax.grid(True)
+            with lc_display:
+                st.success(f"Le code a tourné pendant {st.session_state.lc_elapsed:.2f} secondes.")
 
-            st.pyplot(fig)
+                with st.container(border=True, height=600, width=800):
+                    fig, ax = plt.subplots(figsize=(8, 5))
+                    ax.plot(st.session_state.train_sizes, st.session_state.train_mean, label="Train R²")
+                    ax.plot(st.session_state.train_sizes, st.session_state.test_mean, label="Validation R²")
+                    ax.set_xlabel("Taille du jeu d'entraînement")
+                    ax.set_ylabel("R²")
+                    ax.set_title("Learning Curve")
+                    ax.legend()
+                    ax.grid(True)
+                    st.pyplot(fig)
 
 
             with lc_inter:
 
                 with st.container(border = True):
-                    st.write(f"""
+                        st.write(f"""
                              
 ### Observations :
 ---
@@ -1012,6 +1021,7 @@ la précision des prédictions reste stable lorsque le modèle est appliqué à 
 \n * Stabilité du modèle sur de grands volumes de données
 \n * Confirme une bonne généralisation du modèle
 """)
+                    
                     
                     
                 with st.container(border = True):
@@ -1027,7 +1037,6 @@ la précision des prédictions reste stable lorsque le modèle est appliqué à 
 
             with st.container(border = True, height = 647, width = 700):
 
-                model_LR.fit(data_ML, target)
                 train_preds = model_LR.predict(data_ML)
 
                 nb_samples = st.slider("Choisir le nombre d'observations à afficher :", min_value=10,
