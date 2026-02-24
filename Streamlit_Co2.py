@@ -22,7 +22,8 @@ st.set_page_config(layout="wide")
 @st.cache_data(persist=True)
 
 def load_data():
-    data = pd.read_parquet(r"Co2_sample_v3_ST.parquet")
+    data = pd.read_parquet("Co2_sample_v3_ST.parquet")
+    data = data.sample(n = 100000, random_state = 42)
 
     return data
 
