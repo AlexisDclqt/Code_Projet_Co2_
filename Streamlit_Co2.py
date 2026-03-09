@@ -5,6 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import seaborn as sns
+import statsmodels.api as sm
 
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, OrdinalEncoder
@@ -1239,3 +1240,4 @@ L’étude des **coefficients du modèle** montre que les émissions de CO₂ so
 Ainsi, le modèle fournit des **prédictions fiables et cohérentes** des émissions de CO₂ à partir des caractéristiques des véhicules.
 
 """)
+
